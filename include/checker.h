@@ -44,5 +44,4 @@ struct AutoHookRegister {
 #define CONCAT_IMPL(x, y) x##y
 #define CONCAT(x, y) CONCAT_IMPL(x, y)
 
-#define REGISTER_HOOK(fn) \
-    static AutoHookRegister CONCAT(_auto_hook_reg_, __LINE__)(fn);
+#define REGISTER_HOOK(fn) static AutoHookRegister CONCAT(_auto_hook_reg_, __LINE__)(fn);

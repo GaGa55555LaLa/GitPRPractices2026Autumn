@@ -1,4 +1,5 @@
 CXX ?= g++
+CLANG_FORMAT ?= clang-format
 CPPFLAGS += -Iinclude
 CXXFLAGS ?= -std=c++17 -Wall -Wextra -O2
 
@@ -8,6 +9,7 @@ HOMEWORK_SOURCES := $(wildcard src/homework/*.cpp)
 CHECKER_OBJECTS := $(patsubst %.cpp,$(BUILD_DIR)/%.o,tools/checker.cpp $(COMMON_SOURCES) $(HOMEWORK_SOURCES))
 HASH_OBJECTS := $(patsubst %.cpp,$(BUILD_DIR)/%.o,tools/hash-viewer.cpp $(COMMON_SOURCES))
 OBJECTS := $(sort $(CHECKER_OBJECTS) $(HASH_OBJECTS))
+FORMAT_SOURCES := $(sort $(wildcard include/*.h include/*.hpp tools/*.cpp) $(COMMON_SOURCES) $(HOMEWORK_SOURCES))
 
 ifeq ($(OS),Windows_NT)
 SHELL := cmd.exe
@@ -19,7 +21,7 @@ EXE :=
 mkdir = mkdir -p "$1"
 endif
 
-.PHONY: all checker hash-viewer check clean
+.PHONY: all checker hash-viewer check clean format format-check
 all: checker hash-viewer
 
 checker: $(BUILD_DIR)/checker$(EXE)
@@ -41,6 +43,12 @@ ifeq ($(OS),Windows_NT)
 else
 	./$(BUILD_DIR)/checker$(EXE)
 endif
+
+format:
+	$(CLANG_FORMAT) --style=file -i $(FORMAT_SOURCES)
+
+format-check:
+	$(CLANG_FORMAT) --style=file --dry-run --Werror $(FORMAT_SOURCES)
 
 clean:
 ifeq ($(OS),Windows_NT)
