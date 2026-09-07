@@ -9,6 +9,35 @@ permissions:
   contents: read
 
 jobs:
+  commit-message:
+    name: Commit message
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.pull_request.head.sha }}
+          persist-credentials: false
+      - name: Check PR commit messages
+        shell: bash
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          pattern='^\[Add\] [^[:space:]]+$'
+          failed=0
+          commits=$(git rev-list "$BASE_SHA..$HEAD_SHA")
+          while IFS= read -r commit; do
+            message=$(git show -s --format=%B "$commit")
+            if [[ ! "$message" =~ $pattern ]]; then
+              echo "::error::Commit $commit must use: [Add] student-ID (one space, a non-empty ID without whitespace, and no message body)."
+              failed=1
+            fi
+          done <<< "$commits"
+          exit "$failed"
+
   build-and-check:
     name: Build and check
     runs-on: ubuntu-24.04
