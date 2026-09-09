@@ -30,9 +30,9 @@ jobs:
           failed=0
           commits=$(git rev-list "$BASE_SHA..$HEAD_SHA")
           while IFS= read -r commit; do
-            message=$(git show -s --format=%B "$commit")
-            if [[ ! "$message" =~ $pattern ]]; then
-              echo "::error::Commit $commit must use: [Add] student-ID (one space, a non-empty ID without whitespace, and no message body)."
+            subject=$(git show -s --format=%s "$commit")
+            if [[ ! "$subject" =~ $pattern ]]; then
+              echo "::error::Commit $commit title must use: [Add] student-ID (one space and a non-empty ID without whitespace)."
               failed=1
             fi
           done <<< "$commits"
